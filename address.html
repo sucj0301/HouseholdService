@@ -1,0 +1,308 @@
+<style>
+    .btns {
+        float: left;
+        padding: 0rem 0rem 1rem 0rem;
+    }
+    .search {
+        float: right;
+    }
+</style>
+
+<div>
+<!-- 添加成功提示 -->
+<div class="alert alert-success" role="alert">
+    <h4 class="alert-heading">Success!</h4>
+    <p>信息添加成功</p>
+</div>
+
+<!-- 添加失败提示 -->
+<div class="alert alert-danger" role="alert">
+    <h4 class="alert-heading">Failure！</h4>
+    <p>信息添加失败</p>
+</div>
+
+<div class="btns">
+    <!-- 要想不使用js去控制模态框的显示与隐藏，需要同时添加一下两个自定义属性 -->
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addressModal">添加</button>
+    <button type="button" class="btn btn-danger">批量删除 </button>
+    <button type="button" class="btn btn-primary">导出</button>
+
+</div>
+
+<div class="search">
+    <form class="form-inline my-2 my-lg-0">
+        <input class="form-control mr-sm-2" type="search" placeholder="请输入关键字" aria-label="Search">
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">搜索</button>
+    </form>
+</div>
+
+<div class="address_tbl">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+            <th scope="row">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="option1">
+                    <label class="form-check-label" for="inlineCheckbox1"></label>
+                </div>
+            </th>
+            <th scope="col">顾客编号</th>
+            <th scope="col">省份</th>
+            <th scope="col">城市</th>
+            <th scope="col">地区</th>
+            <th scope="col">详细地址</th>
+            <th scope="col">电话</th>
+            <th scope="col">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+        </tbody>
+    </table>
+</div>
+
+<!-- 模态框 -->
+<div class="modal fade" id="addressModal" tabindex="-1" role="dialog" aria-labelledby="addressModalScrollableTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="addressModalLabel">请添加地址信息</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body" style="background-color: #fff">
+            <form >
+                    <div class="form-group row">
+                        <div class="col-sm-10">
+                            <input type="hidden" class="form-control" id="id">
+                        </div>
+                    </div>
+                <div class="form-group row">
+                    <label for="customerId" class="col-sm-2 col-form-label">顾客编号</label>
+                    <div class="col-sm-10">
+                    <select type="text" class="form-control" id="customerId" placeholder="请输入顾客编号"></select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="province" class="col-sm-2 col-form-label">省&emsp;&emsp;份</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="province" placeholder="请输入省份">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="city" class="col-sm-2 col-form-label">城&emsp;&emsp;市</label>
+                    <div class="col-sm-10">
+                    <input type="text" class="form-control" id="city" placeholder="请输入城市">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="area" class="col-sm-2 col-form-label">地&emsp;&emsp;区</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="area" placeholder="请输入地区">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="address" class="col-sm-2 col-form-label">详细地址</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="address" placeholder="请输入详细地址">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="telephone" class="col-sm-2 col-form-label">电&emsp;&emsp;话</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="telephone" placeholder="请输入电话">
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-primary" id="saveDataAndSendAjax">保存</button>
+        </div>
+        </div>
+    </div>
+</div>    
+<!-- / 模态框 -->
+
+</div>
+<script>
+
+//封装工具函数遍历对象属性，判断是否为空
+function vertifyObjIsNull(obj) {
+  var flag = true;
+  for(var key in obj) {
+    if(!obj[key]){
+      flag = false;
+    }
+  }
+  return flag;
+}
+
+//页面加载完毕后数据处理
+$(function(){
+    //一开始先让提示框关闭
+    $(".alert").hide();
+
+    //监听模态框的关闭
+    //hidden.bs.modal，当模态框完全对用户隐藏时触发。
+    $("#addressModal").on("hidden.bs.modal",function(e){
+        $(this).find("form")[0].reset();
+    })
+    
+    //监听模态框的关闭
+    $("#addressMOdal").on("hidden.bs.modal",function(e){
+        $(this).find("form")[0].reset();
+    })
+
+    baseURL = "http://134.175.100.63:6677";
+    function dataInit(){
+        $.get(`${baseURL}/address/findAll`,function(data){
+            $(".address_tbl tbody").empty();
+            var template = "";
+            data.data.map(function(item){
+                template += `
+                <tr>
+                    <th scope="row">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="${item.id}">
+                            <label class="form-check-label" for="inlineCheckbox1"></label>
+                        </div>
+                    </th>
+                    <td>${item.customerId}</td>
+                    <td>${item.province}</td>
+                    <td>${item.city}</td>
+                    <td>${item.area}</td>
+                    <td>${item.address}</td>
+                    <td>${item.telephone}</td>
+                    <td>
+                        <button type="button" class="btn btn-link" id="btn_del">删除</button>
+                        <button type="button" class="btn btn-link" id="btn_upd">修改</button>
+                    </td>
+                    </tr>
+                `
+            });
+            $(".address_tbl tbody").append(template);
+        })
+    }
+    dataInit();
+
+    //保存模态框的数据并发送ajax请求
+    function saveDataAndSendAjax() {
+        //给模态框保存按钮添加事件
+        $("#saveDataAndSendAjax").click(function(){
+            //声明一个对象来收集表单数据
+            var formObj = {};
+            if($("#id").val()){
+                formObj.id = $("#id").val();
+            }
+            formObj.customerId = $("#customerId").val();
+            formObj.province = $("#province").val();
+            formObj.city = $("#city").val();
+            formObj.area = $("#area").val();
+            formObj.address = $("#address").val();
+            formObj.telephone = $("#telephone").val();
+            console.log(formObj);
+            //判断条件
+            if(vertifyObjIsNull(formObj)){
+                $.post(`${baseURL}/address/saveOrUpdate`,formObj,function(data){
+                    console.log(data);
+                    //判断数据是否请求成功
+                    if(data.status === 200){
+                        //信息添加完成后执行初始化，获取所有数据
+                        dataInit();
+                        //添加成功后让模态框消失
+                        $("#addressModal").modal('hide');
+                        //提示信息显示(过程为500毫秒)
+                        $(".alert-success").show(500);
+                        //设置定时器，定时关闭提示信息 
+                        setTimeout(function(){
+                            //显示提示信息(1500毫秒后显示，显示过程历时800毫秒)
+                            $(".alert-success").hide(800);
+                        },1500);
+                    }else {
+                        //让当前模态框消失
+                        // $("#addressModal").modal('hide');
+                        //提示信息显示
+                        $(".alert-danger").show(500);
+                        //定时器
+                        setTimeout(function(){
+                            //提示信息关闭
+                            $(".alert-danger").hide(800);
+                        },1500);
+                    }
+                })
+            }else {
+                //信息添加失败时让模态框消失
+                // $("#addressModal").modal('hide');
+                //提示信息显示
+                $(".alert-danger").show(500);
+                //定时器
+                setTimeout(function(){
+                    //提示信息关闭，然后让模态框再次显示
+                    $(".alert-danger").hide(800);
+                    $("#addressModal").modal('show')
+                },1500);
+            }
+        });
+    }
+    saveDataAndSendAjax();
+
+    //获取顾客Id
+    function selectCustomerId() {
+        var url = baseURL + "/customer/findAll";
+    $.get(url,function(result){
+        if(result.status === 200){
+            result.data.map(function(item){
+                $("#addressModal select[id=customerId]").append(`
+                    <option value="${item.id}">${item.id}</option>
+                `);
+            });
+        }
+    });
+    }
+    selectCustomerId();
+
+    //给删除修改按钮绑定事件
+    $(".address_tbl tbody").on('click','button',function(){
+        // alert(3);
+        switch(this.id) {
+            case "btn_del" : 
+            // alert(1);
+            var url = baseURL + "/address/deleteById";
+            var id = $(this).parents("tr").find("input").val();
+            var data = {
+                id:id 
+            };
+            $.get(url,data,function(result){
+                alert(result.message);
+                dataInit();
+            })
+            break;
+            case "btn_upd" : 
+            // alert(2);
+            $("#addressModal").modal('show');
+            var id = $(this).parents("tr").find("input").val();
+            var customerId = $(this).parents("tr").children()[1].innerText;
+            var province = $(this).parents("tr").children()[2].innerText;
+            var city = $(this).parents("tr").children()[3].innerText;
+            var area = $(this).parents("tr").children()[4].innerText;
+            var address = $(this).parents("tr").children()[5].innerText;
+            var telephone = $(this).parents("tr").children()[6].innerText;
+
+            $("#id").val(id);
+            $("#customerId").val(customerId);
+            $("#province").val(province);
+            $("#city").val(city);
+            $("#area").val(area);
+            $("#address").val(address);
+            $("#telephone").val(telephone);
+
+            break;
+        }
+    })
+
+    })
+
+
+</script>

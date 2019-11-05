@@ -1,0 +1,229 @@
+<style>
+    .btns {
+        float: left;     
+        padding: 0rem 0rem 1rem 0rem;
+    }
+    .search {
+        float: right;
+    }
+</style>
+<!-- 信息添加成功提示 -->
+<div class="alert alert-success" role="alert">
+    <h4 class="alert-heading">Success!</h4>
+    <p>信息添加成功</p>
+</div>
+<!-- 信息添加失败 -->
+<div class="alert alert-danger" role="alert">
+    <h4 class="alert-heading">Failure!</h4>
+    <p>信息添加失败</p>
+</div>
+
+<div class="btns">
+    <button class="btn btn-primary" data-toggle="modal" data-target="#waiterModal">添加</button>
+    <button class="btn btn-danger">批量删除</button>
+    <button class="btn btn-primary">导出</button>
+</div>
+<div class="search">
+    <form class="form-inline my-2 my-lg-0">
+        <input class="form-control mr-sm-2" type="search" placeholder="请输入关键字" aria-label="Search">
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">搜索</button>
+    </form>
+</div>
+
+<div class="waiter_tbl">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th><input type="checkbox"></th>
+                <th>姓名</th>
+                <th>密码</th>
+                <th>照片</th>
+                <th>手机号</th>
+                <th>卡号</th>
+                <th>状态</th>
+                <th>操作</th>     
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+</div>
+
+<!-- 模态框 -->
+<div class="modal fade" id="waiterModal" tabindex="-1" role="dialog" aria-labelledby="waiterModalScrollableTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg  " role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="waiterModalLabel">请输入服务员信息</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form >
+                <div class="form-group row">
+                    <label for="realname" class="col-sm-2 col-form-label">姓&emsp;&emsp;名</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="realname" placeholder="请输入姓名">
+                    </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="password" class="col-sm-2 col-form-label">密&emsp;&emsp;码</label>
+                        <div class="col-sm-10">
+                        <input type="password" class="form-control" id="password" placeholder="请输入密码">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="photo" class="col-sm-2 col-form-label">照&emsp;&emsp;片</label>
+                        <div class="col-sm-10">
+                            <input type="file" class="form-control" id="photo" placeholder="请上传照片">
+                        </div>
+                        </div>
+                    <div class="form-group row">
+                        <label for="telephone" class="col-sm-2 col-form-label">&emsp;手机号</label>
+                        <div class="col-sm-10">
+                        <input type="text" class="form-control" id="telephone" placeholder="请输入手机号">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="idcard" class="col-sm-2 col-form-label">卡&emsp;&emsp;号</label>
+                        <div class="col-sm-10">
+                        <input type="text" class="form-control" id="idcard" placeholder="请输入卡号">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="status" class="col-sm-2 col-form-label">状&emsp;&emsp;态</label>
+                        <div class="col-sm-10">
+                        <input type="text" class="form-control" id="status" placeholder="请输入状态">
+                        </div>
+                    </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-primary" id="saveDataAndSendAjax">保存</button>
+        </div>
+        </div>
+    </div>
+</div>
+<!-- / 模态框 -->
+
+<script>
+    //封装工具函数遍历对象属性，判断是否为空
+    function vertifyObjIsNull(obj) {
+        var flag = true;
+        for(var key in obj){
+            if(!obj[key]){
+                flag = false;
+            }
+        }
+        return flag;
+    }
+
+    //当文档加载完毕后回调函数执行
+    $(function(){
+
+    //一开始先让提示框关闭
+    $(".alert").hide();
+
+    // 接口地址
+    var baseURL = "http://134.175.100.63:6677";
+
+    //当dom完成后绑定一个要执行的函数
+    $(function(){
+
+        //数据初始化
+       function dataInit(){   
+
+        //发送ajax请求获取数据    
+        $.get(`${baseURL}/waiter/findAll`,function(data){
+            //打印data
+            // console.log(data);
+            //domstring
+            var p = "";
+            //遍历后台数据
+            data.data.map(function(item){
+            //domstring拼接
+            p += `
+            <tr>
+            <th><input type="checkbox"></th>
+            <td>${item.realname}</td>
+            <td>${item.password}</td>
+            <td>${item.photo}</td>
+            <td>${item.telephone}</td>
+            <td>${item.idcard}</td>
+            <td>${item.status}</td>
+            <td>
+                <button class="btn btn-link">删除</button>
+                <button class="btn btn-link">修改</button> 
+            </td>
+            </tr>
+            `
+            });
+            //追加并渲染数据
+            $(".waiter_tbl tbody").append(p);
+        })
+       }
+       //执行初始化函数
+       dataInit();
+
+       //
+       var saveDataAndSendAjax = function(){
+           $("#saveDataAndSendAjax").click(function(){
+               var formObj = {};
+               formObj.realname = $("#realname").val();
+               formObj.password = $("#password").val();
+               formObj.photo = $("#photo").val();
+               formObj.telephone = $("#telephone").val();
+               formObj.idcard = $("#idcard").val();
+               formObj.status = $("#status").val();
+               console.log(formObj);
+               //判断
+               if(vertifyObjIsNull(formObj)){
+                   $.post(`${baseURL}/waiter/saveOrUpdate`,formObj,function(data){
+                       console.log(data);
+                       if(data.status === 200){
+                           //添加完毕之后再次请求获取所有数据，达到添加无缝状态
+                           dataInit();
+                           //添加成功后让当前模态框消失
+                           $("#waiterModal").modal('hide');
+                           //提示信息显示
+                           $(".alert-success").show(500);
+                           //设置定时器让提示框消失
+                           setTimeout(function(){
+                            //关闭提示框
+                            $(".alert-success").hide(800);
+                           },1500);
+                       }else {
+                           //让当前模态框消失
+                           $("#waiterModal").modal('hide');
+                           //信息添加失败时让错误提示框显示
+                           $(".alert-danger").show(500);
+                           //定时器
+                           setTimeout(function(){
+                               $(".alert-danger").hide(800);
+                           },1500);
+                       }
+                   })
+               }else {
+                   //信息添加失败(有信息为空时)让模态框消失
+                   $("#waiterModal").modal('hide');
+                   //让错误提示框显示
+                   $(".alert-danger").show(500);
+                   //定时器
+                   setTimeout(function(){
+                       $(".alert-danger").hide(800);
+                       //模态框显示
+                       $("#waiterModal").modal('show');
+                   },1500);
+    
+               }
+           });
+       }
+       saveDataAndSendAjax();
+
+    });
+    })
+
+</script>

@@ -1,0 +1,272 @@
+<style> 
+    .btns {
+      padding: 0rem 0rem 1rem 0rem;
+    }
+</style>
+
+<div>
+    <!-- alert成功提示 -->
+    <div class="alert alert-success" role="alert" >
+        <h4 class="alert-heading">Success!</h4>
+        <p>信息添加成功</p>
+    </div>
+      <!-- Alert错误提示 -->
+    <div class="alert alert-danger" role="alert">
+        <h4 class="alert-heading">Failure！</h4>
+        <p>信息添加失败</p>
+    </div>
+    <div class="btns">
+      <!-- 要想不使用js去控制模态框的显示与隐藏，需要同时添加一下两个自定义属性 -->
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#customerModal">添加</button>
+            <button type="button" class="btn btn-danger">批量删除</button>
+            <button type="button" class="btn btn-primary">导出</button>
+    </div>
+    <div class="table">
+            <table class="table table-striped" id="customer_tbl">
+                    <thead>
+                      <tr>
+                        <th scope="col">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="option1">
+                                <label class="form-check-label" for="inlineCheckbox1"></label>
+                            </div>
+                      </th>
+                        <th scope="col">姓名</th>
+                        <th scope="col">手机号</th>
+                        <th scope="col">密码</th>
+                        <th scope="col">照片</th>
+                        <th scope="col">操作</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                    
+                
+                    </tbody>
+                  </table>
+                  <!-- <p>我是即将被追加的内容</p> -->
+    </div>
+   <!-- 模态框 -->
+   <div class="modal fade" id="customerModal" tabindex="-1" role="dialog" aria-labelledby="customerModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="customerModalLabel">添加顾客信息</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body" style="background-color: #fff">
+            <form id="customer_form">
+                <div class="form-group row">                    
+                  <div class="col-sm-10">
+                      <input type="hidden" class="form-control" id="id">
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="realname" class="col-sm-2 col-form-label">姓&emsp;名</label>
+                    <div class="col-sm-10">
+                      <input type="text" class="form-control" id="realname" placeholder="请输入姓名">
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                      <label for="telephone" class="col-sm-2 col-form-label">手机号</label>
+                      <div class="col-sm-10">
+                        <input type="text" class="form-control" id="telephone" placeholder="请输入手机号">
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="password" class="col-sm-2 col-form-label">密&emsp;码</label>
+                        <div class="col-sm-10">
+                          <input type="password" class="form-control" id="password" placeholder="请输入密码">
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                          <label for="photo" class="col-sm-2 col-form-label">照&emsp;片</label>
+                          <div class="col-sm-10">
+                            <input type="file" class="form-control" id="photo" placeholder="请上传照片">
+                          </div>
+                        </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-primary" id="saveDataAndSendAjax">保存</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- / 模态框 -->
+    
+    <script>
+      var obj = {
+
+      };
+      var obj = new Object ();
+
+    </script>
+</div>
+<script>
+// 页面加载完毕之后数据处理
+ $(function() {
+  $(".alert").hide();
+
+  // 监听模态框的关闭
+  //hidden.bs.modal，当模态框完全对用户隐藏时触发。
+	$("#customerModal").on('hidden.bs.modal',function(e){
+		$(this).find("form")[0].reset();
+	})
+
+   var baseUrl = "http://134.175.100.63:6677";
+   // 遍历出所有的数据
+   var findAllData = function() {
+     $(".table table tbody").empty();
+     $.get(`${baseUrl}/customer/findAll`, function(data) {
+          // console.log(data);
+          if (data.message === "success" && data.status === 200) {
+            // console.log(data);
+               // 模板
+               var template = "";
+               // 对数据进行处理
+               data["data"].map(function(item,index) {
+                    template += `<tr> 
+                        <th scope="row">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="${item.id}">
+                                <label class="form-check-label" for="inlineCheckbox1"></label>
+                           </div>
+                        </th>
+                        <td>${item.realname}</td>
+                        <td>${item.telephone}</td>
+                        <td>${item.password}</td>
+                        <td>${item.photo}</td>
+                        <td> <button class="btn btn-link" id="btn_del">删除</button> &nbsp;<button class="btn btn-link" id="btn_upd">修改</button> &nbsp;<button class="btn btn-link" id="btn_det">详情</button></td>
+                     </tr>`;  
+               });
+
+              
+               // jQuery的A.append(B)是把B追加到A中，而A.appendTo(B)是把A追加到B中，与append行为恰好相反
+               $(template).appendTo( 
+                ".table table tbody"
+                   );
+          } else {
+            alert("数据请求异常")
+          }
+     })
+   };
+   findAllData();
+
+   // 保存模态框中的数据，并发送ajax请求
+
+   function saveDataAndSendAjax() {
+
+    // 模态框确定按钮
+       $("#saveDataAndSendAjax").click(function() {
+
+        // 表单数据收集对象
+         var formObj = {};
+         if($("#id").val()){
+          formObj.id = $("#id").val();
+         }
+         formObj.realname = $("#realname").val();
+         formObj.telephone = $("#telephone").val();
+         formObj.password = $("#password").val();
+         console.log(formObj)
+         // 高级判断  !!formObj.realname&&!!formObj.telephone&&!!formObj.password
+         // 低级判断
+         if(formObj.realname !== ""&&formObj.telephone!== ""&&formObj.password!== "") {
+         // 发送ajax请求
+         $.post(`${baseUrl}/customer/saveOrUpdate`,formObj,function(data) {
+           console.log(data);
+           // 如果状态为200，那么提示添加成功
+           if(data.status === 200) {
+
+            // 添加完毕之后，再次请求获取所有，达到添加无缝状态
+            findAllData();
+
+            // 当前模态框消失
+            $('#customerModal').modal('hide');
+
+            // 提示信息显示，显示过程经历500ms
+            $(".alert-success").show(500);
+
+
+            // 设置定时器，达到定时关闭提示信息，设置为1500ms
+            setTimeout(function(){
+              // 提示信息关闭的时间经历800ms
+              $(".alert-success").hide(800);
+            },1500);
+           } else {
+              // 当前模态框消失
+            // $('#customerModal').modal('hide');
+
+            // 提示信息显示，显示过程经历500ms
+            $(".alert-danger").show(500);
+
+
+            // 设置定时器，达到定时关闭提示信息，设置为1500ms
+            setTimeout(function(){
+              // 提示信息关闭的时间经历800ms
+              $(".alert-danger").hide(800);
+            },1500);
+           }
+         })
+         } else {
+              // 当前模态框消失
+              // $('#customerModal').modal('hide')
+
+              // 提示信息显示，显示过程经历500ms
+              $(".alert-danger").show(500);
+
+
+              // 设置定时器，达到定时关闭提示信息，设置为1500ms
+              setTimeout(function(){
+                // 提示信息关闭的时间经历800ms
+                $(".alert-danger").hide(800);
+                $('#customerModal').modal('show')
+              },1500);
+         }
+
+       });
+   }
+   saveDataAndSendAjax();
+
+   //为删除修改按钮绑定事件
+   $("#customer_tbl tbody").on('click','button',function(){
+     switch(this.id) {
+       case "btn_del" :
+      //  alert(1);
+      var url = baseUrl + "/customer/deleteById";
+      var id = $(this).parents("tr").find("input").val();
+      // console.log(id);
+      var data = {
+        id : id
+      };
+      $.get(url,data,function(result){
+        alert(result.message);
+        findAllData();
+      })
+       break;
+       case "btn_upd" :
+      //  alert(2);
+      $("#customerModal").modal('show');
+      //获取数据
+      var id = $(this).parents("tr").find("input").val();
+      var realname = $(this).parents("tr").children()[1].innerText; 
+      var telephone = $(this).parents("tr").children()[2].innerText;
+      var password = $(this).parents("tr").children()[3].innerText;
+      // console.log(id,realname,telephone,password);
+      $("#id").val(id);
+      $("#realname").val(realname);
+      $("#telephone").val(telephone);
+      $("#password").val(password);
+      //传递数据
+       break;
+       case "btn_det" : 
+       alert(3);
+       break;
+     }
+   })
+
+ })
+</script>

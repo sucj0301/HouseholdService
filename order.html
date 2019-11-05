@@ -1,0 +1,116 @@
+<style>
+    .btns {
+        float: left;
+        padding: 0rem 0rem 1rem 0rem;
+    }
+    .search {
+        float: right;
+    }
+</style>
+
+<div class="alert alert-success" role="alert">
+    <h4 class="alert-heading">Success!</h4>
+    <p>信息添加成功！</p>
+</div>
+<div class="alert alert-danger" role="alert">
+    <h4 class="alert-heading">Failure!</h4>
+    <p>信息添加失败！</p>
+</div>
+
+<div class="btns">
+    <button class="btn btn-primary" data-toggle="modal" data-target="#orderModal">添加</button>
+    <button class="btn btn-danger">批量删除</button>
+    <button class="btn btn-primary">导出</button>
+</div>
+<div class="search">
+    <form class="form-inline my-2 my-lg-0">
+        <input class="form-control mr-sm-2" type="search" placeholder="请输入关键字" aria-label="Search">
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">搜索</button>
+    </form>
+</div>
+<div class="order_tbl">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th><input type="checkbox"></th>
+                <th>顾客编号</th>
+                <th>下单时间</th>
+                <th>总数</th>
+                <th>员工编号</th>
+                <th>地址编号</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="orderModal" tabindex="-1" role="dialog" aria-labelledby="orderModalScrollableTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+        <div class="modal-content">
+            <!-- 模态框的title -->
+            <div class="header">
+                <h5 class="modal-title" id="orderModalLabel">请输入订单信息</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <!-- 模态框的body -->
+            <div class="modal-body">
+                <form>
+                    <div class="form-group row">
+                        <label for="" class=""></label>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    //一开始先让提示框隐藏
+    $(".alert").hide();
+
+    //当页面加载完毕后执行回调函数
+    $(function(){
+        //后台接口地址
+    var baseURL = "http://134.175.100.63:6677";
+    //为dom操作绑定事件
+    $(function(){
+        //数据初始化
+        function dataInit(){
+            //获取后台数据
+            $.get(`${baseURL}/order/findAll`,function(data){
+            //打印data(测试)
+            // console.log(data);
+            //domstring
+            var p = "";
+            //遍历后台数据
+            data.data.map(function(item){
+               //domstring拼接
+               p +=`
+               <tr>
+                <th><input type="checkbox"></th>
+                <td>${item.customerId}</td>
+                <td>${item.orderTime}</td>
+                <td>${item.total}</td>
+                <td>${item.waiterId}</td>
+                <td>${item.addressId}</td>
+                <td>
+                    <button class="btn btn-link">删除</button>
+                    <button class="btn btn-link">详情</button>
+                </td>
+                </tr>
+               `
+            });
+            //追加并遍历数据
+            $(".order_tbl tbody").append(p);
+        })
+        }
+        dataInit();
+    })
+    })
+</script>
